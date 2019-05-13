@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+                <title>WKWebView使用WebviewJavaScriptBridge</title>
+                </head>
+    
+    <style type="text/css">
+        .button {
+            background: #f5be14;
+            margin: 10px;
+            text-align: center;
+            width: 300px;
+            height: 44px;
+            line-height: 44px;
+            margin: 10px auto;
+            border-radius: 5px;
+        }
+    #setImage {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+    }
+    #setText {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+    }
+    </style>
+    
+    <body>
+        
+        <div class="button" onclick="firstClick()">今晚打老虎</div>
+        <div class="button" onclick="secondClick()">请用力的点我</div>
+        <div class="button" onclick="thirdClick()">弹我弹我</div>
+        <div class="button" onclick="forthClick()">选择图片</div>
+        <div class="button" onclick="callOCToCallJSClick()">调用OC执行JS来连接两个字符串</div>
+        <div id="setImage"></div>
+        <div id="setText"></div>
+    </body>
+    
+    <script type="text/javascript">
+        
+        
+        function setupWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) { return callback(WebViewJavascriptBridge); }
+            if (window.WVJBCallbacks) { return window.WVJBCallbacks.push(callback); }
+            window.WVJBCallbacks = [callback];
+            var WVJBIframe = document.createElement('iframe');
+            WVJBIframe.style.display = 'none';
+            WVJBIframe.src = 'https://__bridge_loaded__';
+            document.documentElement.appendChild(WVJBIframe);
+            setTimeout(function() { document.documentElement.removeChild(WVJBIframe) }, 0)
+        }
+    
+    setupWebViewJavascriptBridge(function(bridge) {
+                                 //注册让OC调用JS的方法，data是OC传递过来的参数，responseHandler是给OC的回调
+                                 bridge.registerHandler("showTextOnDiv", function(data, responseHandler) {
+                                                        var textDiv = document.getElementById("setText");
+                                                        textDiv.innerHTML = data;
+                                                        responseHandler("JS已经干完活啦");//给OC回调一个字符串
+                                                        });
+                                 
+                                 bridge.registerHandler("showImageOnDiv", function(data, responseHandler) {
+                                                        showImageOnDiv(data);
+                                                        });
+                                 });
+                                 
+                                 function getText(index) {
+                                     return document.getElementsByClassName("button")[index].innerText;
+                                 }
+    
+    function firstClick() {
+        var action = "firstClick";
+        var token = getText(0);
+        var paras = getParams(action, token);
+        //JS调用OC
+        WebViewJavascriptBridge.callHandler("firstClick", paras, function(response) {
+                                            //这里是JS调用OC后，OC给的回调
+                                            var textDiv = document.getElementById("setText");
+                                            textDiv.innerHTML = response;
+                                            });
+    }
+    
+    function secondClick() {
+        var action = "secondClick";
+        var token = getText(1);
+        var paras = getParams(action, token);
+        //JS调用OC
+        WebViewJavascriptBridge.callHandler("secondClick", paras, function(response) {
+                                            //这里是JS调用OC后，OC给的回调
+                                            var textDiv = document.getElementById("setText");
+                                            textDiv.innerHTML = response;
+                                            });
+    }
+    
+    function thirdClick() {
+        var action = "thirdClick";
+        var token = getText(2);
+        var paras = getParams(action, token);
+        //JS调用OC
+        WebViewJavascriptBridge.callHandler("thirdClick", paras, function(response) {
+                                            //这里是JS调用OC后，OC给的回调
+                                            var textDiv = document.getElementById("setText");
+                                            textDiv.innerHTML = response;
+                                            });
+    }
+    
+    function forthClick() {
+        var action = "forthClick";
+        var token = getText(3);
+        var paras = getParams(action, token);
+        //JS调用OC
+        WebViewJavascriptBridge.callHandler("forthClick", paras, function(response) {
+                                            //这里是JS调用OC后，OC给的回调
+                                            var textDiv = document.getElementById("setText");
+                                            textDiv.innerHTML = response;
+                                            });
+    }
+    
+    function callOCToCallJSClick() {
+        var action = "callOCToCallJSClick";
+        var token = getText(4);
+        var paras = getParams(action, token);
+        //JS调用OC
+        WebViewJavascriptBridge.callHandler("callOCToCallJSClick", paras, function(response) {
+                                            //这里是JS调用OC后，OC给的回调
+                                            var textDiv = document.getElementById("setText");
+                                            textDiv.innerHTML = response;
+                                            });
+    }
+    
+    function getParams(action, token) {
+        var paras = {
+            'action' : action,
+            'token' : token
+        }
+        return paras;
+    }
+    
+    function showImageOnDiv(imageStr) {
+        var imgDiv = document.getElementById("setImage");
+        imgDiv.innerHTML = "<image style='width:200px;' src='data:image/png;base64,"+imageStr+"'>";
+    }
+    
+    function ocToJS(str1, str2) {
+        var str = "str1" + " OCTOJS " + "str2";
+        var textDiv = document.getElementById("setText");
+        textDiv.innerHTML = str;
+    }
+    
+        </script>
+    
+</html>
